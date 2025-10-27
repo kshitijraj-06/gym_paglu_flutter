@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/ai_chatbot_service.dart';
+import 'chat_page.dart';
 
 class AITrainerPage extends StatelessWidget {
   const AITrainerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final ChatbotService chatbotService = ChatbotService();
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -115,28 +119,31 @@ class AITrainerPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    // Coming Soon Button
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6C63FF).withOpacity(0.3),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+                    // Talk with Julie Button
+                    InkWell(
+                      onTap: () => Get.to(() => const ChatPage()),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
                           ),
-                        ],
-                      ),
-                      child: Text(
-                        'Coming Soon',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF6C63FF).withOpacity(0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'Talk with Julie',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
