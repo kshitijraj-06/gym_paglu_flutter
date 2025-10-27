@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/auth_controller.dart';
+import 'personal_info_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -89,7 +90,7 @@ class ProfilePage extends StatelessWidget {
               Icons.person_outline,
               'Personal Information',
               'Update your details',
-              () {},
+              () => Get.to(() => const PersonalInfoPage()),
             ),
             const SizedBox(height: 12),
             _buildProfileOption(
