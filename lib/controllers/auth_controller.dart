@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:gym_paglu/core/envVars.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 class AuthController extends GetxController {
   var isLoading = false.obs;
   var isLoggedIn = false.obs;
+  final storage = FlutterSecureStorage();
 
   Future<void> login(String email, String password) async {
     isLoading.value = true;
@@ -23,8 +25,11 @@ class AuthController extends GetxController {
 
       if (response.statusCode == 200) {
         print('Login successful');
+        final idToken = jsonDecode(response.body)['token'];
+        print(idToken);
         isLoggedIn.value = true;
         Get.offAllNamed('/home');
+        await storage.write(key: 'token', value: idToken);
       } else {
         print('Login failed: ${response.statusCode}');
         isLoggedIn.value = false;
@@ -53,8 +58,10 @@ class AuthController extends GetxController {
       );
       if (response.statusCode == 200) {
         print('Signup successful');
+        final idToken = jsonDecode(response.body)['idToken'];
         isLoggedIn.value = true;
         Get.offAllNamed('/home');
+        await storage.write(key: 'token', value: idToken);
       } else {
         print('Signup failed: ${response.statusCode}');
         isLoggedIn.value = false;

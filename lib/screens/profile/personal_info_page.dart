@@ -12,19 +12,45 @@ class PersonalInfoPage extends StatefulWidget {
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController(text: 'Gym Enthusiast');
-  final _emailController = TextEditingController(text: 'user@gympaglu.com');
-  final _phoneController = TextEditingController(text: '+91 1234567890');
-  final _ageController = TextEditingController(text: '25');
-  final _heightController = TextEditingController(text: '175');
-  final _weightController = TextEditingController(text: '70');
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _heightController = TextEditingController();
+  final _weightController = TextEditingController();
   
   String _selectedGender = 'Male';
   String _selectedGoal = 'Weight Loss';
   bool _isEditing = false;
+  final UserProfileService userProfile = Get.put(UserProfileService());
+
+  @override
+  void initState() {
+    super.initState();
+    userProfile.fetchUserProfile();
+    _fetchUserProfile();
+  }
+
+  void _fetchUserProfile() async {
+
+    
+    // Update form fields with backend data
+    setState(() {
+      _nameController.text = userProfile.name.value;
+      _emailController.text = userProfile.email.value;
+      _phoneController.text = userProfile.phone.value;
+      _selectedGender = userProfile.gender.value;
+      _ageController.text = userProfile.age.value;
+      _heightController.text = userProfile.height.value;
+      _weightController.text = userProfile.weight.value;
+      _selectedGoal = userProfile.fitnessGoal.value;
+    });
+  }
 
   final List<String> _genders = ['Male', 'Female', 'Other'];
   final List<String> _goals = ['Weight Loss', 'Muscle Gain', 'Strength Training', 'Endurance', 'General Fitness'];
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -82,11 +108,17 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
               ),
               // Form
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
+                child: Obx(() => userProfile.isLoading.value
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF6C63FF),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
                       children: [
                         // Profile Picture
                         Container(
@@ -106,11 +138,20 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         ),
                         const SizedBox(height: 30),
                         // Basic Info
-                        _buildInfoField('Full Name', _nameController, Icons.person_outline),
-                        const SizedBox(height: 16),
-                        _buildInfoField('Email', _emailController, Icons.email_outlined),
-                        const SizedBox(height: 16),
-                        _buildInfoField('Phone', _phoneController, Icons.phone_outlined),
+                        Obx(() {
+                          _nameController.text = userProfile.name.value;
+                          _emailController.text = userProfile.email.value;
+                          _phoneController.text = userProfile.phone.value;
+                          return Column(
+                            children: [
+                              _buildInfoField('Full Name', _nameController, Icons.person_outline),
+                              const SizedBox(height: 16),
+                              _buildInfoField('Email', _emailController, Icons.email_outlined),
+                              const SizedBox(height: 16),
+                              _buildInfoField('Phone', _phoneController, Icons.phone_outlined),
+                            ],
+                          );
+                        }),
                         const SizedBox(height: 16),
                         // Gender Dropdown
                         _buildDropdownField('Gender', _selectedGender, _genders, Icons.wc, (value) {
@@ -118,19 +159,28 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         }),
                         const SizedBox(height: 16),
                         // Physical Info
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _buildInfoField('Age', _ageController, Icons.cake_outlined, suffix: 'years'),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _buildInfoField('Height', _heightController, Icons.height, suffix: 'cm'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        _buildInfoField('Weight', _weightController, Icons.monitor_weight_outlined, suffix: 'kg'),
+                        Obx(() {
+                          _ageController.text = userProfile.age.value;
+                          _heightController.text = userProfile.height.value;
+                          _weightController.text = userProfile.weight.value;
+                          return Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildInfoField('Age', _ageController, Icons.cake_outlined, suffix: 'years'),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: _buildInfoField('Height', _heightController, Icons.height, suffix: 'cm'),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              _buildInfoField('Weight', _weightController, Icons.monitor_weight_outlined, suffix: 'kg'),
+                            ],
+                          );
+                        }),
                         const SizedBox(height: 16),
                         // Fitness Goal
                         _buildDropdownField('Fitness Goal', _selectedGoal, _goals, Icons.flag_outlined, (value) {
@@ -178,8 +228,9 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                           ),
                         const SizedBox(height: 20),
                       ],
-                    ),
-                  ),
+                          ),
+                        ),
+                      ),
                 ),
               ),
             ],

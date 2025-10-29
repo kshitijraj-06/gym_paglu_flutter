@@ -1,13 +1,60 @@
+import 'dart:convert';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:gym_paglu/core/envVars.dart';
 import 'chat_storage_service.dart';
+import 'package:http/http.dart' as http;
 
 class UserProfileService extends GetxController {
   var fitnessGoal = 'General Fitness'.obs;
+  var name = 'Gym Enthusiast'.obs;
+  var email = 'user@gympaglu.com'.obs;
+  var phone = '1234567890'.obs;
+  var gender = 'Male'.obs;
+  var age = '25'.obs;
+  var height = '180'.obs;
+  var weight = '75'.obs;
+  var isLoading = false.obs;
+  final storage = const FlutterSecureStorage();
   
   @override
   void onInit() {
     super.onInit();
     loadUserProfile();
+  }
+
+  Future<void> fetchUserProfile() async{
+    final idtoken = await storage.read(key: 'token');
+    isLoading.value = true;
+    try{
+      final response = await http.get(
+          Uri.parse('${ApiConfig.serviceApi}/api/profile'),
+        headers: {
+          'Authorization': 'Bearer $idtoken'
+        }
+      );
+      if(response.statusCode == 200){
+        final responseData = jsonDecode(response.body);
+        final data = responseData['data'];
+        
+        name.value = data['fullName'] ?? 'Gym Enthusiast';
+        email.value = data['email'] ?? 'user@gympaglu.com';
+        phone.value = data['phone'] ?? '1234567890';
+        gender.value = data['gender'] ?? 'Male';
+        age.value = data['age']?.toString() ?? '25';
+        height.value = data['height']?.toString() ?? '175';
+        weight.value = data['weight']?.toString() ?? '70';
+        fitnessGoal.value = data['fitnessGoal'] ?? 'General Fitness';
+        print(name.value);
+        print(data);
+       // fitnessGoal.value = data;
+        isLoading.value = false;
+      }else{
+        print("error: ${response.statusCode}");
+        isLoading.value = false;
+      }
+    }catch(e){}
   }
   
   Future<void> loadUserProfile() async {
