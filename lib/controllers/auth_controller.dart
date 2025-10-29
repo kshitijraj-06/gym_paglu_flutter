@@ -40,13 +40,34 @@ class AuthController extends GetxController {
   Future<void> signup(String name, String email, String password, String goal) async {
     isLoading.value = true;
     
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    try{
+      final response = await http.post(
+        Uri.parse('${ApiConfig.serviceApi}/api/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "fullName": name,
+          "email": email,
+          "password": password,
+          "fitnessGoal": goal,
+        }),
+      );
+      if (response.statusCode == 200) {
+        print('Signup successful');
+        isLoggedIn.value = true;
+        Get.offAllNamed('/home');
+      } else {
+        print('Signup failed: ${response.statusCode}');
+        isLoggedIn.value = false;
+      }
+    }catch (e) {
+      print('Error during signup: $e');
+      isLoggedIn.value = false;
+    } finally {
+      isLoading.value = false;
+    }
     
     isLoggedIn.value = true;
     isLoading.value = false;
-    
-    Get.offAllNamed('/home');
   }
   
   void logout() {
