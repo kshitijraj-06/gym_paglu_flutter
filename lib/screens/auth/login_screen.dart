@@ -208,7 +208,10 @@ class LoginScreen extends StatelessWidget {
                               child: ElevatedButton(
                                 onPressed: authController.isLoading.value
                                     ? null
-                                    : () => _handleLogin(authController, _formKey, _emailController, _passwordController),
+                                    : () => authController.login(
+                                   _emailController.text,
+                                  _passwordController.text,
+                                ),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
@@ -283,9 +286,3 @@ class LoginScreen extends StatelessWidget {
   }
 
   }
-
-void _handleLogin(AuthController authController, GlobalKey<FormState> formKey, TextEditingController emailController, TextEditingController passwordController) {
-  if (formKey.currentState?.validate() ?? false) {
-    authController.login(emailController.text, passwordController.text);
-  }
-}
