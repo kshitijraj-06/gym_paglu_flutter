@@ -136,4 +136,83 @@ class WorkoutsPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildWorkoutCard(Map<String, dynamic> workout) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withOpacity(0.1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              _getIconForType(workout['icon']),
+              color: Colors.white,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  workout['name'],
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${workout['exercises']} exercises • ${workout['duration']}',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: Colors.grey[400],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 16,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIconForType(String type) {
+    switch (type) {
+      case 'cardio': return Icons.directions_run;
+      case 'strength': return Icons.fitness_center;
+      case 'yoga': return Icons.self_improvement;
+      case 'swimming': return Icons.pool;
+      case 'cycling': return Icons.directions_bike;
+      default: return Icons.fitness_center;
+    }
+  }
 }

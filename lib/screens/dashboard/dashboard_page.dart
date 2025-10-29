@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/recommendation_service.dart';
+import '../../controllers/workout_tracker.dart';
+import '../ai_trainer/chat_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final RecommendationService recommendationService = Get.put(RecommendationService());
+    final WorkoutTracker workoutTracker = Get.put(WorkoutTracker());
+    
+    // Generate recommendation and update calories when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      recommendationService.generateRecommendation();
+      workoutTracker.updateDashboardCalories();
+    });
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -61,7 +73,7 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             // AI Recommendation Card
-            Container(
+            Obx(() => Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
@@ -91,43 +103,66 @@ class DashboardPage extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
+                      const Spacer(),
+                      if (recommendationService.isLoading.value)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Based on your progress, I recommend focusing on upper body strength today. Your chest and triceps are ready for a challenge!',
+                    recommendationService.recommendation.value.isEmpty
+                        ? 'Getting your personalized recommendation...'
+                        : recommendationService.recommendation.value,
                     style: GoogleFonts.inter(
                       color: Colors.white,
                       fontSize: 14,
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () => Get.to(() => const ChatPage()),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              shadowColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Talk to Julie',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        'Start Workout',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      const SizedBox(width: 12),
+                      IconButton(
+                        onPressed: () => recommendationService.generateRecommendation(),
+                        icon: const Icon(Icons.refresh, color: Colors.white),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),
-            ),
+            )),
             const SizedBox(height: 30),
             // Stats Grid
             GridView.count(
@@ -138,18 +173,18 @@ class DashboardPage extends StatelessWidget {
               mainAxisSpacing: 16,
               childAspectRatio: 1.2,
               children: [
-                _buildStatCard(
+                Obx(() => _buildStatCard(
                   'Calories Burned',
-                  '450',
+                  '${workoutTracker.totalCalories.value}',
                   Icons.local_fire_department,
                   const Color(0xFFFF6B6B),
-                ),
-                _buildStatCard(
+                )),
+                Obx(() => _buildStatCard(
                   'Workout Time',
-                  '45 min',
+                  '${workoutTracker.workoutTime.value} min',
                   Icons.timer,
                   const Color(0xFF4ECDC4),
-                ),
+                )),
                 _buildStatCard(
                   'Weekly Goal',
                   '4/5 days',

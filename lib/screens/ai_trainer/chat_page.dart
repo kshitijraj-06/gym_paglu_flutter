@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/ai_chatbot_service.dart';
+import '../../controllers/chat_storage_service.dart';
 import '../../widgets/formatted_text.dart';
 
 class ChatPage extends StatefulWidget {
@@ -20,7 +21,20 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
-    _addMessage('Hi! I\'m Julie, your AI fitness trainer. How can I help you today?', false);
+    _loadChatHistory();
+  }
+
+  void _loadChatHistory() async {
+    final savedMessages = await ChatStorageService.loadChat('gym_user');
+    if (savedMessages.isEmpty) {
+      _addMessage('Hi! I\'m Julie, your AI fitness trainer. How can I help you today?', false);
+    } else {
+      setState(() {
+        _messages.addAll(savedMessages.map((msg) => 
+          ChatMessage(text: msg['text'], isUser: msg['isUser'])
+        ));
+      });
+    }
   }
 
   @override
@@ -243,6 +257,15 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {
       _messages.add(ChatMessage(text: text, isUser: isUser));
     });
+    _saveChat();
+  }
+
+  void _saveChat() async {
+    final messagesToSave = _messages.map((msg) => {
+      'text': msg.text,
+      'isUser': msg.isUser,
+    }).toList();
+    await ChatStorageService.saveChat('gym_user', messagesToSave);
   }
 
   void _sendMessage(String text) async {

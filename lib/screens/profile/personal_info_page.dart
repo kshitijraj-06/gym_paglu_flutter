@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/user_profile_service.dart';
 
 class PersonalInfoPage extends StatefulWidget {
   const PersonalInfoPage({super.key});
@@ -259,6 +260,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       setState(() {
         _isEditing = false;
       });
+      
+      // Save fitness goal
+      final userProfile = Get.find<UserProfileService>();
+      userProfile.updateFitnessGoal(_selectedGoal);
+      
       Get.snackbar(
         'Success',
         'Personal information updated successfully',
