@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:get/get.dart';
+import '../../controllers/user_workout_service.dart';
+import 'add_workout_page.dart';
 
-class WorkoutsPage extends StatelessWidget {
-  const WorkoutsPage({super.key});
+class WorkoutsPage extends StatefulWidget {
+   WorkoutsPage({super.key});
+
+
+  @override
+  State<WorkoutsPage> createState() => _WorkoutsPageState();
+}
+
+class _WorkoutsPageState extends State<WorkoutsPage> {
+  final UserWorkoutService userWorkoutService = Get.put(UserWorkoutService());
+
+  @override
+  void initState() {
+    super.initState();
+    userWorkoutService.fetchUserWorkouts();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final workouts = [
-      {'name': 'Chest & Triceps', 'exercises': 6, 'duration': '45 min', 'icon': Icons.fitness_center},
-      {'name': 'Back & Biceps', 'exercises': 5, 'duration': '50 min', 'icon': Icons.fitness_center},
-      {'name': 'Legs & Shoulders', 'exercises': 7, 'duration': '60 min', 'icon': Icons.fitness_center},
-      {'name': 'Cardio Blast', 'exercises': 3, 'duration': '30 min', 'icon': Icons.directions_run},
-    ];
 
     return Container(
       decoration: const BoxDecoration(
@@ -35,22 +46,27 @@ class WorkoutsPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Workouts',
+                    'My Workouts',
                     style: GoogleFonts.poppins(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.search,
-                      color: Colors.white,
+                  GestureDetector(
+                    onTap: () => Get.to(() => AddWorkoutPage()),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -58,78 +74,120 @@ class WorkoutsPage extends StatelessWidget {
             ),
             // Workouts List
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                itemCount: workouts.length,
-                itemBuilder: (context, index) {
-                  final workout = workouts[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withOpacity(0.1),
-                      ),
-                    ),
-                    child: Row(
+              child: Obx(() {
+                if (userWorkoutService.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF6C63FF)),
+                  );
+                }
+                
+                if (userWorkoutService.selectedWorkouts.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Icon(
-                            workout['icon'] as IconData,
-                            color: Colors.white,
-                            size: 24,
+                        Icon(
+                          Icons.fitness_center,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No workouts selected',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            color: Colors.grey[400],
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                workout['name'] as String,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${workout['exercises']} exercises • ${workout['duration']}',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  color: Colors.grey[400],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.white,
-                            size: 16,
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap + to add workouts',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.grey[500],
                           ),
                         ),
                       ],
                     ),
                   );
-                },
-              ),
+                }
+                
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  itemCount: userWorkoutService.selectedWorkouts.length,
+                  itemBuilder: (context, index) {
+                    final workout = userWorkoutService.selectedWorkouts[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              _getIconForType(workout.type),
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  workout.name,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${workout.caloriesPerMinute.toInt()} cal/min • ${workout.type}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 14,
+                                    color: Colors.grey[400],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => userWorkoutService.removeWorkout(workout.id),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.remove,
+                                color: Colors.red,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -207,11 +265,10 @@ class WorkoutsPage extends StatelessWidget {
 
   IconData _getIconForType(String type) {
     switch (type) {
-      case 'cardio': return Icons.directions_run;
-      case 'strength': return Icons.fitness_center;
-      case 'yoga': return Icons.self_improvement;
-      case 'swimming': return Icons.pool;
-      case 'cycling': return Icons.directions_bike;
+      case 'CARDIO': return Icons.directions_run;
+      case 'STRENGTH': return Icons.fitness_center;
+      case 'FLEXIBILITY': return Icons.self_improvement;
+      case 'SPORTS': return Icons.sports_basketball;
       default: return Icons.fitness_center;
     }
   }
