@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gym_paglu/controllers/user_profile_service.dart';
 import '../../controllers/auth_controller.dart';
 import 'personal_info_page.dart';
+import 'fitness_goals_page.dart';
+import 'notifications_page.dart';
+import 'settings_page.dart';
+import 'help_support_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final UserProfileService userProfileService = Get.put(UserProfileService());
+
+  @override
+  void initState() {
+    super.initState();
+    userProfileService.fetchUserProfile();
+  }
 
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.find();
 
-    return Container(
+    return Scaffold(
+      body: Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -65,22 +84,22 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Gym Enthusiast',
+                  Obx(() => Text(
+                    userProfileService.name.value,
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
-                  ),
+                  )),
                   const SizedBox(height: 4),
-                  Text(
-                    'Weight Loss Goal',
+                  Obx(() => Text(
+                    userProfileService.fitnessGoal.value,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: Colors.grey[400],
                     ),
-                  ),
+                  )),
                 ],
               ),
             ),
@@ -97,14 +116,14 @@ class ProfilePage extends StatelessWidget {
               Icons.fitness_center,
               'Fitness Goals',
               'Manage your objectives',
-              () {},
+              () => Get.to(() => const FitnessGoalsPage()),
             ),
             const SizedBox(height: 12),
             _buildProfileOption(
               Icons.notifications_outlined,
               'Notifications',
               'Manage your alerts',
-              () {},
+              () => Get.to(() => const NotificationsPage()),
             ),
             const SizedBox(height: 12),
             _buildProfileOption(
@@ -118,14 +137,14 @@ class ProfilePage extends StatelessWidget {
               Icons.help_outline,
               'Help & Support',
               'Get assistance',
-              () {},
+              () => Get.to(() => const HelpSupportPage()),
             ),
             const SizedBox(height: 12),
             _buildProfileOption(
               Icons.settings_outlined,
               'Settings',
               'App preferences',
-              () {},
+              () => Get.to(() => const SettingsPage()),
             ),
             const SizedBox(height: 20),
             // Logout Button
@@ -171,7 +190,7 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildProfileOption(IconData icon, String title, String subtitle, VoidCallback onTap) {

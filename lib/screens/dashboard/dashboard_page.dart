@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gym_paglu/screens/profile/profile_page.dart';
 import '../../controllers/recommendation_service.dart';
 import '../../controllers/workout_tracker.dart';
 import '../ai_trainer/chat_page.dart';
@@ -15,7 +16,7 @@ class DashboardPage extends StatelessWidget {
     
     // Generate recommendation and update calories when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      recommendationService.generateRecommendation();
+      //recommendationService.generateRecommendation();
       workoutTracker.updateDashboardCalories();
     });
     return Container(
@@ -58,16 +59,19 @@ class DashboardPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                GestureDetector(
+                  onTap: () => Get.to(() => ProfilePage()),
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                      ),
+                      borderRadius: BorderRadius.circular(25),
                     ),
-                    borderRadius: BorderRadius.circular(25),
+                    child: const Icon(Icons.person, color: Colors.white),
                   ),
-                  child: const Icon(Icons.person, color: Colors.white),
                 ),
               ],
             ),

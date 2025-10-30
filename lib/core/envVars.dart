@@ -1,3 +1,3 @@
 class ApiConfig {
-  static const String serviceApi = 'http://10.5.89.22:8090';
+  static const String serviceApi = 'http://68.233.96.179:8080';
 }

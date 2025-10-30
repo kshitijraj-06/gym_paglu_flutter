@@ -24,12 +24,6 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   bool _isEditing = false;
   final UserProfileService userProfile = Get.put(UserProfileService());
 
-  @override
-  void initState() {
-    super.initState();
-    userProfile.fetchUserProfile();
-    _fetchUserProfile();
-  }
 
   void _fetchUserProfile() async {
 
