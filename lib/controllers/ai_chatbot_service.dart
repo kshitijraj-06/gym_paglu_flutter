@@ -29,7 +29,7 @@ class ChatbotService extends GetxController{
     );
 
     final data = jsonDecode(response.body);
-    String response1 = data['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? "No response";
+    String response1 = data['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? "You are good to go!! Go for it CHAMP!!!!";
     
     print(response1);
     return response1;

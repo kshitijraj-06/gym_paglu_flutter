@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../controllers/notification_service.dart';
 
-class NotificationsPage extends StatefulWidget {
+class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
 
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
-}
-
-class _NotificationsPageState extends State<NotificationsPage> {
-  bool workoutReminders = true;
-  bool progressUpdates = true;
-  bool aiRecommendations = false;
-  bool weeklyReports = true;
-
-  @override
   Widget build(BuildContext context) {
+    final NotificationService notificationService = Get.put(NotificationService());
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -55,34 +47,34 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   children: [
-                    _buildNotificationTile(
+                    Obx(() => _buildNotificationTile(
                       'Workout Reminders',
                       'Get reminded about your scheduled workouts',
                       Icons.alarm,
-                      workoutReminders,
-                      (value) => setState(() => workoutReminders = value),
-                    ),
-                    _buildNotificationTile(
+                      notificationService.workoutReminders.value,
+                      (value) => notificationService.updateNotificationSetting('workoutReminders', value),
+                    )),
+                    Obx(() => _buildNotificationTile(
                       'Progress Updates',
                       'Receive updates about your fitness progress',
                       Icons.trending_up,
-                      progressUpdates,
-                      (value) => setState(() => progressUpdates = value),
-                    ),
-                    _buildNotificationTile(
+                      notificationService.progressUpdates.value,
+                      (value) => notificationService.updateNotificationSetting('progressUpdates', value),
+                    )),
+                    Obx(() => _buildNotificationTile(
                       'AI Recommendations',
                       'Get personalized workout suggestions from Julie',
                       Icons.psychology,
-                      aiRecommendations,
-                      (value) => setState(() => aiRecommendations = value),
-                    ),
-                    _buildNotificationTile(
+                      notificationService.aiRecommendations.value,
+                      (value) => notificationService.updateNotificationSetting('aiRecommendations', value),
+                    )),
+                    Obx(() => _buildNotificationTile(
                       'Weekly Reports',
                       'Summary of your weekly fitness activities',
                       Icons.assessment,
-                      weeklyReports,
-                      (value) => setState(() => weeklyReports = value),
-                    ),
+                      notificationService.weeklyReports.value,
+                      (value) => notificationService.updateNotificationSetting('weeklyReports', value),
+                    )),
                   ],
                 ),
               ),
