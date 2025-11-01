@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:gym_paglu/core/envVars.dart';
 import 'chat_storage_service.dart';
 import 'package:http/http.dart' as http;
+import 'ai_workout_recommendation_service.dart';
 
 class UserProfileService extends GetxController {
   var fitnessGoal = 'General Fitness'.obs;
@@ -50,6 +51,10 @@ class UserProfileService extends GetxController {
         print(data);
        // fitnessGoal.value = data;
         isLoading.value = false;
+        
+        // Generate AI workouts for new user
+        final aiService = Get.put(AIWorkoutRecommendationService());
+        await aiService.generateWorkoutsForUser(fitnessGoal.value);
       }else{
         print("error: ${response.statusCode}");
         isLoading.value = false;
@@ -85,6 +90,10 @@ class UserProfileService extends GetxController {
         fitnessGoal.value = goal;
         print('done');
         await ChatStorageService.saveChat('user_profile', [{'fitnessGoal': goal}]);
+        
+        // Generate AI workouts for new fitness goal
+        final aiService = Get.put(AIWorkoutRecommendationService());
+        await aiService.generateWorkoutsForUser(goal);
       }
     } catch (e) {
       print('Error updating fitness goal: $e');
