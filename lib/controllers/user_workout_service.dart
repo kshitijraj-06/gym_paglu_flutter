@@ -9,6 +9,7 @@ class UserWorkoutService extends GetxController {
   final storage = FlutterSecureStorage();
   final RxList<Workout> selectedWorkouts = <Workout>[].obs;
   final RxBool isLoading = false.obs;
+  final RxMap<int, bool> workoutLoadingStates = <int, bool>{}.obs;
 
   @override
   void onInit() {
@@ -22,7 +23,7 @@ class UserWorkoutService extends GetxController {
       final token = await storage.read(key: 'token');
       
       final response = await http.get(
-        Uri.parse('http://68.233.96.179:8080/api/user-workouts'),
+        Uri.parse('${ApiConfig.serviceApi}/api/my-workouts'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -42,15 +43,15 @@ class UserWorkoutService extends GetxController {
 
   Future<void> addWorkout(Workout workout) async {
     try {
-      final token = await storage.read(key: 'auth_token');
+      workoutLoadingStates[workout.id] = true;
+      final token = await storage.read(key: 'token');
       
       final response = await http.post(
-        Uri.parse('http://68.233.96.179:8080/api/user-workouts'),
+        Uri.parse('${ApiConfig.serviceApi}/api/workouts/my-workouts/${workout.id}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: json.encode({'workoutId': workout.id}),
       );
 
       if (response.statusCode == 200) {
@@ -58,15 +59,18 @@ class UserWorkoutService extends GetxController {
       }
     } catch (e) {
       print('Error adding workout: $e');
+    } finally {
+      workoutLoadingStates.remove(workout.id);
     }
   }
 
   Future<void> removeWorkout(int workoutId) async {
     try {
-      final token = await storage.read(key: 'auth_token');
+      workoutLoadingStates[workoutId] = true;
+      final token = await storage.read(key: 'token');
       
       final response = await http.delete(
-        Uri.parse('http://68.233.96.179:8080/api/user-workouts/$workoutId'),
+        Uri.parse('${ApiConfig.serviceApi}/api/workouts/my-workouts/$workoutId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -78,6 +82,8 @@ class UserWorkoutService extends GetxController {
       }
     } catch (e) {
       print('Error removing workout: $e');
+    } finally {
+      workoutLoadingStates.remove(workoutId);
     }
   }
 }

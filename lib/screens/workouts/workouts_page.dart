@@ -168,18 +168,30 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => userWorkoutService.removeWorkout(workout.id),
+                            onTap: () async => await userWorkoutService.removeWorkout(workout.id),
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: Colors.red.withOpacity(0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(
-                                Icons.remove,
-                                color: Colors.red,
-                                size: 16,
-                              ),
+                              child: Obx(() {
+                                final isLoading = userWorkoutService.workoutLoadingStates[workout.id] ?? false;
+                                return isLoading
+                                    ? const SizedBox(
+                                        width: 12,
+                                        height: 12,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.red,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.remove,
+                                        color: Colors.red,
+                                        size: 16,
+                                      );
+                              }),
                             ),
                           ),
                         ],

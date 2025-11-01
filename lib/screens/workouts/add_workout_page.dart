@@ -54,21 +54,23 @@ class AddWorkoutPage extends StatelessWidget {
             itemCount: workoutService.workouts.length,
             itemBuilder: (context, index) {
               final workout = workoutService.workouts[index];
-              final isSelected = userWorkoutService.selectedWorkouts
-                  .any((w) => w.id == workout.id);
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected 
-                        ? const Color(0xFF6C63FF)
-                        : Colors.white.withOpacity(0.1),
+              return Obx(() {
+                final isSelected = userWorkoutService.selectedWorkouts
+                    .any((w) => w.id == workout.id);
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected 
+                          ? const Color(0xFF6C63FF)
+                          : Colors.white.withOpacity(0.1),
+                    ),
                   ),
-                ),
                 child: Row(
                   children: [
                     Container(
@@ -117,11 +119,11 @@ class AddWorkoutPage extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         if (isSelected) {
-                          userWorkoutService.removeWorkout(workout.id);
+                          await userWorkoutService.removeWorkout(workout.id);
                         } else {
-                          userWorkoutService.addWorkout(workout);
+                          await userWorkoutService.addWorkout(workout);
                         }
                       },
                       child: Container(
@@ -132,18 +134,33 @@ class AddWorkoutPage extends StatelessWidget {
                               : Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Icon(
-                          isSelected ? Icons.check : Icons.add,
-                          color: Colors.white,
-                          size: 20,
-                        ),
+                        child: Obx(() {
+                          final isLoading = userWorkoutService.workoutLoadingStates[workout.id] ?? false;
+                          final currentSelected = userWorkoutService.selectedWorkouts.any((w) => w.id == workout.id);
+                          
+                          return isLoading
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Icon(
+                                  currentSelected ? Icons.check : Icons.add,
+                                  color: Colors.white,
+                                  size: 20,
+                                );
+                        }),
                       ),
                     ),
                   ],
-                ),
-              );
-            },
+                );
+              });
+            };
           );
+        }),
         }),
       ),
     );
