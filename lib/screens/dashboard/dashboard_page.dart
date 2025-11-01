@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gym_paglu/screens/profile/profile_page.dart';
 import '../../controllers/recommendation_service.dart';
-import '../../controllers/workout_tracker.dart';
+import '../../controllers/dashboard_service.dart';
 import '../ai_trainer/chat_page.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -12,12 +12,12 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RecommendationService recommendationService = Get.put(RecommendationService());
-    final WorkoutTracker workoutTracker = Get.put(WorkoutTracker());
+    final DashboardService dashboardService = Get.put(DashboardService());
     
-    // Generate recommendation and update calories when page loads
+    // Generate recommendation and fetch dashboard data when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      //recommendationService.generateRecommendation();
-      workoutTracker.updateDashboardCalories();
+      recommendationService.generateRecommendation();
+      dashboardService.fetchDashboardData();
     });
     return Container(
       decoration: const BoxDecoration(
@@ -179,28 +179,28 @@ class DashboardPage extends StatelessWidget {
               children: [
                 Obx(() => _buildStatCard(
                   'Calories Burned',
-                  '${workoutTracker.totalCalories.value}',
+                  '${dashboardService.totalCalories.value}',
                   Icons.local_fire_department,
                   const Color(0xFFFF6B6B),
                 )),
                 Obx(() => _buildStatCard(
                   'Workout Time',
-                  '${workoutTracker.workoutTime.value} min',
+                  '${dashboardService.workoutTime.value} min',
                   Icons.timer,
                   const Color(0xFF4ECDC4),
                 )),
-                _buildStatCard(
+                Obx(() => _buildStatCard(
                   'Weekly Goal',
-                  '4/5 days',
+                  '${dashboardService.weeklyGoal.value}/7 days',
                   Icons.flag,
                   const Color(0xFF45B7D1),
-                ),
-                _buildStatCard(
+                )),
+                Obx(() => _buildStatCard(
                   'Streak',
-                  '12 days',
+                  '${dashboardService.streak.value} days',
                   Icons.whatshot,
                   const Color(0xFFFFA726),
-                ),
+                )),
               ],
             ),
           ],
