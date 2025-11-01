@@ -177,8 +177,11 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
                         }),
                         const SizedBox(height: 16),
                         // Fitness Goal
-                        _buildDropdownField('Fitness Goal', _selectedGoal, _goals, Icons.flag_outlined, (value) {
-                          setState(() => _selectedGoal = value!);
+                        Obx(() {
+                          _selectedGoal = userProfile.fitnessGoal.value;
+                          return _buildDropdownField('Fitness Goal', _selectedGoal, _goals, Icons.flag_outlined, (value) {
+                            setState(() => _selectedGoal = value!);
+                          });
                         }),
                         const SizedBox(height: 40),
                         // Save Button

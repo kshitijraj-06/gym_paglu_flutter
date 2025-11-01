@@ -102,8 +102,8 @@ class FitnessGoalsPage extends StatelessWidget {
                         trailing: userProfile.fitnessGoal.value == goal['name']
                             ? const Icon(Icons.check_circle, color: Color(0xFF6C63FF))
                             : null,
-                        onTap: () {
-                          userProfile.updateFitnessGoal(goal['name'] as String);
+                        onTap: () async {
+                          await userProfile.updateFitnessGoal(goal['name'] as String);
                           Get.snackbar(
                             'Goal Updated',
                             'Your fitness goal has been updated to ${goal['name']}',

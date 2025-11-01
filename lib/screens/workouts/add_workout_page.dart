@@ -156,14 +156,12 @@ class AddWorkoutPage extends StatelessWidget {
                       ),
                     ),
                   ],
-                );
+                ));
               });
-            };
-          );
+            });
         }),
-        }),
-      ),
-    );
+      )
+  );
   }
 
   IconData _getIconForType(String type) {

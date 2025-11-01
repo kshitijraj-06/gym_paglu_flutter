@@ -69,7 +69,25 @@ class UserProfileService extends GetxController {
   }
   
   Future<void> updateFitnessGoal(String goal) async {
-    fitnessGoal.value = goal;
-    await ChatStorageService.saveChat('user_profile', [{'fitnessGoal': goal}]);
+    try {
+      final token = await storage.read(key: 'token');
+      
+      final response = await http.put(
+        Uri.parse('${ApiConfig.serviceApi}/api/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'fitnessGoal': goal}),
+      );
+
+      if (response.statusCode == 200) {
+        fitnessGoal.value = goal;
+        print('done');
+        await ChatStorageService.saveChat('user_profile', [{'fitnessGoal': goal}]);
+      }
+    } catch (e) {
+      print('Error updating fitness goal: $e');
+    }
   }
 }
