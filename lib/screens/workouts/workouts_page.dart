@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../../controllers/user_workout_service.dart';
 import 'add_workout_page.dart';
+import 'workout_session_page.dart';
 
 class WorkoutsPage extends StatefulWidget {
    WorkoutsPage({super.key});
@@ -117,8 +118,10 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                   itemCount: userWorkoutService.selectedWorkouts.length,
                   itemBuilder: (context, index) {
                     final workout = userWorkoutService.selectedWorkouts[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
+                    return GestureDetector(
+                      onTap: () => Get.to(() => WorkoutSessionPage(workout: workout)),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.05),
@@ -196,7 +199,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                           ),
                         ],
                       ),
-                    );
+                    ));
                   },
                 );
               }),

@@ -5,6 +5,7 @@ import 'package:gym_paglu/screens/profile/profile_page.dart';
 import '../../controllers/recommendation_service.dart';
 import '../../controllers/dashboard_service.dart';
 import '../ai_trainer/chat_page.dart';
+import '../exercises/exercises_page.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -158,6 +159,10 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
+                      IconButton(
+                        onPressed: () => Get.to(() => const ExercisesPage()),
+                        icon: const Icon(Icons.fitness_center, color: Colors.white),
+                      ),
                       IconButton(
                         onPressed: () => recommendationService.generateRecommendation(),
                         icon: const Icon(Icons.refresh, color: Colors.white),
