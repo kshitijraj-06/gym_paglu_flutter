@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:gym_paglu/controllers/chat_storage_service.dart';
 import 'package:gym_paglu/core/envVars.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController extends GetxController {
   var isLoading = false.obs;
@@ -31,11 +33,11 @@ class AuthController extends GetxController {
         Get.offAllNamed('/home');
         await storage.write(key: 'token', value: idToken);
       } else {
-        print('Login failed: ${response.statusCode}');
+        print('Login failed: \${response.statusCode}');
         isLoggedIn.value = false;
       }
     } catch (e) {
-      print('Error during login: $e');
+      print('Error during login: \$e');
       isLoggedIn.value = false;
     } finally {
       isLoading.value = false;
@@ -63,11 +65,11 @@ class AuthController extends GetxController {
         Get.offAllNamed('/home');
         await storage.write(key: 'token', value: idToken);
       } else {
-        print('Signup failed: ${response.statusCode}');
+        print('Signup failed: \${response.statusCode}');
         isLoggedIn.value = false;
       }
     }catch (e) {
-      print('Error during signup: $e');
+      print('Error during signup: \$e');
       isLoggedIn.value = false;
     } finally {
       isLoading.value = false;
@@ -77,7 +79,13 @@ class AuthController extends GetxController {
     isLoading.value = false;
   }
   
-  void logout() {
+  Future<void> logout() async {
+    // Clear all stored data
+    await storage.deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    await ChatStorageService.clearChat('gym_user');
+
     isLoggedIn.value = false;
     Get.offAllNamed('/login');
   }

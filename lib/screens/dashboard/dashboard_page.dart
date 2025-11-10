@@ -12,8 +12,8 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RecommendationService recommendationService = Get.put(RecommendationService());
-    final DashboardService dashboardService = Get.put(DashboardService());
+    final RecommendationService recommendationService = Get.find();
+    final DashboardService dashboardService = Get.find();
     
     // Generate recommendation and fetch dashboard data when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -159,10 +159,6 @@ class DashboardPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      IconButton(
-                        onPressed: () => Get.to(() => const ExercisesPage()),
-                        icon: const Icon(Icons.fitness_center, color: Colors.white),
-                      ),
                       IconButton(
                         onPressed: () => recommendationService.generateRecommendation(),
                         icon: const Icon(Icons.refresh, color: Colors.white),

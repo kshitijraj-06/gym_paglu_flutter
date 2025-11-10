@@ -8,6 +8,12 @@ class RecommendationService extends GetxController {
   var recommendation = ''.obs;
   var isLoading = false.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    generateRecommendation();
+  }
+
   Future<void> generateRecommendation() async {
     isLoading.value = true;
     

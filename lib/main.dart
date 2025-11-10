@@ -1,6 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:gym_paglu/controllers/dashboard_service.dart';
+import 'package:gym_paglu/controllers/recommendation_service.dart';
+import 'package:gym_paglu/controllers/theme_controller.dart';
 import 'core/theme/app_theme.dart';
 import 'firebase_options.dart';
 import 'screens/auth/login_screen.dart';
@@ -22,23 +25,31 @@ class GymPagluApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'AI Gym Trainer',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.dark,
-      initialRoute: '/login',
-      getPages: [
-        GetPage(name: '/login', page: () => const LoginScreen()),
-        GetPage(name: '/signup', page: () => const SignupScreen()),
-        GetPage(name: '/home', page: () => const HomeScreen()),
-        GetPage(name: '/personal-info', page: () => const PersonalInfoPage()),
-        GetPage(name: '/chat', page: () => const ChatPage()),
-      ],
-      initialBinding: BindingsBuilder(() {
-        Get.put(AuthController());
-      }),
-      debugShowCheckedModeBanner: false,
+    return GetBuilder<ThemeController>(
+      init: ThemeController(),
+      builder: (themeController) {
+        return GetMaterialApp(
+          title: 'AI Gym Trainer',
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeController.themeMode,
+          initialRoute: '/login',
+          getPages: [
+            GetPage(name: '/login', page: () => const LoginScreen()),
+            GetPage(name: '/signup', page: () => const SignupScreen()),
+            GetPage(name: '/home', page: () => const HomeScreen()),
+            GetPage(name: '/personal-info', page: () => const PersonalInfoPage()),
+            GetPage(name: '/chat', page: () => const ChatPage()),
+          ],
+          initialBinding: BindingsBuilder(() {
+            Get.put(AuthController());
+            Get.put(ThemeController());
+            Get.put(RecommendationService());
+            Get.put(DashboardService());
+          }),
+          debugShowCheckedModeBanner: false,
+        );
+      },
     );
   }
 }

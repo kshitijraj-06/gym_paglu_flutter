@@ -28,4 +28,13 @@ class ChatStorageService {
     }
     return {};
   }
+
+  static Future<void> clearChat(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    final allChats = await getAllChats();
+    if (allChats.containsKey(username)) {
+      allChats.remove(username);
+      await prefs.setString(_chatKey, jsonEncode(allChats));
+    }
+  }
 }

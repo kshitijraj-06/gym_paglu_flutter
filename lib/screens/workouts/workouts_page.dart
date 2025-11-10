@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import '../../controllers/user_workout_service.dart';
+import '../exercises/exercises_page.dart';
 import 'add_workout_page.dart';
 import 'workout_session_page.dart';
 
 class WorkoutsPage extends StatefulWidget {
-   WorkoutsPage({super.key});
+   const WorkoutsPage({super.key});
 
 
   @override
@@ -54,21 +55,42 @@ class _WorkoutsPageState extends State<WorkoutsPage> {
                       color: Colors.white,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () => Get.to(() => AddWorkoutPage()),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Get.to(() => const ExercisesPage()),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.explore,
+                            color: Colors.white,
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => Get.to(() => AddWorkoutPage()),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6C63FF), Color(0xFF9C88FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

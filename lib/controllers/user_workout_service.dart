@@ -32,7 +32,12 @@ class UserWorkoutService extends GetxController {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        selectedWorkouts.value = data.map((json) => Workout.fromJson(json['workout'])).toList();
+        selectedWorkouts.value = data.map((json) {
+          Map<String, dynamic> workoutData = Map<String, dynamic>.from(json['workout']);
+          workoutData['duration'] = json['duration'] ?? 0;
+          return Workout.fromJson(workoutData);
+        }).toList();
+        print('Selected Workouts: $selectedWorkouts');
       }
     } catch (e) {
       print('Error fetching user workouts: $e');
@@ -85,5 +90,10 @@ class UserWorkoutService extends GetxController {
     } finally {
       workoutLoadingStates.remove(workoutId);
     }
+  }
+
+  Future<void> clearAndRefetchWorkouts() async {
+    selectedWorkouts.clear();
+    await fetchUserWorkouts();
   }
 }

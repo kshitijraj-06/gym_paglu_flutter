@@ -18,15 +18,11 @@ class FitnessGoalsPage extends StatelessWidget {
       {'name': 'General Fitness', 'icon': Icons.favorite, 'description': 'Overall health and wellness'},
     ];
 
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F0F23), Color(0xFF1A1A2E), Color(0xFF16213E)],
-          ),
-        ),
+        color: theme.colorScheme.surface,
         child: SafeArea(
           child: Column(
             children: [

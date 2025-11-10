@@ -1,6 +1,13 @@
+import 'dart:io';
+
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gym_paglu/controllers/theme_controller.dart';
+import 'package:gym_paglu/controllers/user_workout_service.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -10,21 +17,17 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool darkMode = true;
   String units = 'Metric';
   String language = 'English';
 
   @override
   Widget build(BuildContext context) {
+    final ThemeController themeController = Get.find();
+    final theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F0F23), Color(0xFF1A1A2E), Color(0xFF16213E)],
-          ),
-        ),
+        color: theme.colorScheme.background,
         child: SafeArea(
           child: Column(
             children: [
@@ -35,7 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     IconButton(
                       onPressed: () => Get.back(),
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      icon: Icon(Icons.arrow_back, color: theme.colorScheme.onBackground),
                     ),
                     const SizedBox(width: 16),
                     Text(
@@ -43,7 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onBackground,
                       ),
                     ),
                   ],
@@ -54,13 +57,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   children: [
-                    _buildSwitchTile(
-                      'Dark Mode',
-                      'Use dark theme throughout the app',
-                      Icons.dark_mode,
-                      darkMode,
-                      (value) => setState(() => darkMode = value),
-                    ),
+                    Obx(() => _buildSwitchTile(
+                          'Dark Mode',
+                          'Use dark theme throughout the app',
+                          Icons.dark_mode,
+                          themeController.themeMode == ThemeMode.dark,
+                          (value) => themeController.toggleTheme(value),
+                        )),
                     _buildDropdownTile(
                       'Units',
                       'Choose measurement units',
@@ -87,7 +90,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       'Export Data',
                       'Download your fitness data',
                       Icons.download,
-                      () => Get.snackbar('Export', 'Data export started'),
+                      () => _showExportDataDialog(),
                     ),
                   ],
                 ),
@@ -99,74 +102,82 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildSwitchTile(String title, String subtitle, IconData icon, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildSwitchTile(
+      String title, String subtitle, IconData icon, bool value, ValueChanged<bool> onChanged) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C63FF).withOpacity(0.2),
+              color: theme.colorScheme.primary.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+            child: Icon(icon, color: theme.colorScheme.primary, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400])),
+                Text(title,
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+                Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: theme.colorScheme.onSurface.withOpacity(0.7))),
               ],
             ),
           ),
-          Switch(value: value, onChanged: onChanged, activeColor: const Color(0xFF6C63FF)),
+          Switch(value: value, onChanged: onChanged, activeColor: theme.colorScheme.primary),
         ],
       ),
     );
   }
 
-  Widget _buildDropdownTile(String title, String subtitle, IconData icon, String value, List<String> items, ValueChanged<String?> onChanged) {
+  Widget _buildDropdownTile(String title, String subtitle, IconData icon, String value,
+      List<String> items, ValueChanged<String?> onChanged) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C63FF).withOpacity(0.2),
+              color: theme.colorScheme.primary.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+            child: Icon(icon, color: theme.colorScheme.primary, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
-                Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400])),
+                Text(title,
+                    style: GoogleFonts.poppins(
+                        fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+                Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: theme.colorScheme.onSurface.withOpacity(0.7))),
               ],
             ),
           ),
           DropdownButton<String>(
             value: value,
-            dropdownColor: const Color(0xFF1A1A2E),
-            style: GoogleFonts.inter(color: Colors.white),
+            dropdownColor: theme.colorScheme.surface,
+            style: GoogleFonts.inter(color: theme.colorScheme.onSurface),
             items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
             onChanged: onChanged,
           ),
@@ -176,42 +187,51 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildActionTile(String title, String subtitle, IconData icon, VoidCallback onTap) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: theme.colorScheme.onSurface.withOpacity(0.1)),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.all(20),
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF6C63FF).withOpacity(0.2),
+            color: theme.colorScheme.primary.withOpacity(0.2),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+          child: Icon(icon, color: theme.colorScheme.primary, size: 24),
         ),
-        title: Text(title, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
-        subtitle: Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: Colors.grey[400])),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+        title: Text(title,
+            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+        subtitle: Text(subtitle, style: GoogleFonts.inter(fontSize: 14, color: theme.colorScheme.onSurface.withOpacity(0.7))),
+        trailing: Icon(Icons.arrow_forward_ios, color: theme.colorScheme.onSurface, size: 16),
         onTap: onTap,
       ),
     );
   }
 
   void _showClearCacheDialog() {
+    final theme = Theme.of(context);
     Get.dialog(
       AlertDialog(
-        backgroundColor: const Color(0xFF1A1A2E),
-        title: Text('Clear Cache', style: GoogleFonts.poppins(color: Colors.white)),
-        content: Text('This will clear all cached data. Continue?', style: GoogleFonts.inter(color: Colors.white70)),
+        backgroundColor: theme.colorScheme.surface,
+        title: Text('Clear Cache', style: GoogleFonts.poppins(color: theme.colorScheme.onSurface)),
+        content: Text('This will clear all cached data. Continue?',
+            style: GoogleFonts.inter(color: theme.colorScheme.onSurface.withOpacity(0.7))),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
+              final tempDir = await getTemporaryDirectory();
+              if (tempDir.existsSync()) {
+                tempDir.deleteSync(recursive: true);
+              }
+              Get.find<UserWorkoutService>().clearAndRefetchWorkouts();
               Get.snackbar('Cache Cleared', 'All cached data has been removed');
             },
             child: const Text('Clear'),
@@ -219,5 +239,52 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  void _showExportDataDialog() {
+    final theme = Theme.of(context);
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        title: Text('Export Data', style: GoogleFonts.poppins(color: theme.colorScheme.onSurface)),
+        content: Text('This will export your fitness data as a CSV file. Continue?',
+            style: GoogleFonts.inter(color: theme.colorScheme.onSurface.withOpacity(0.7))),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              _exportData();
+            },
+            child: const Text('Export'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _exportData() async {
+    final UserWorkoutService userWorkoutService = Get.find();
+    final workouts = userWorkoutService.selectedWorkouts;
+
+    if (workouts.isEmpty) {
+      Get.snackbar('No Data', 'There is no workout data to export.');
+      return;
+    }
+
+    List<List<dynamic>> rows = [];
+    rows.add(['ID', 'Name', 'Calories Per Minute', 'Type', 'Duration (minutes)']);
+    for (var workout in workouts) {
+      rows.add([workout.id, workout.name, workout.caloriesPerMinute, workout.type]);
+    }
+
+    String csv = const ListToCsvConverter().convert(rows);
+
+    final directory = await getTemporaryDirectory();
+    final path = '${directory.path}/workout_data.csv';
+    final file = File(path);
+    await file.writeAsString(csv);
+
+    await Share.shareXFiles([XFile(path)], text: 'My Workout Data');
   }
 }
